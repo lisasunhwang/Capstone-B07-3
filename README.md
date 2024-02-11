@@ -1,5 +1,4 @@
 # Netlist Congestion Prediction
-## Capstone-B07-3
 
 ## References
 In this repository, we have referenced the CongestionNet paper (🔗 [Kirby et al.](https://ieeexplore.ieee.org/document/8920342)) as well as the Graph Attention Network (GAT) paper (🔗 [Veličković et al.](https://arxiv.org/abs/1710.10903))
