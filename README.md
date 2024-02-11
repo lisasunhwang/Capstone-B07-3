@@ -1,20 +1,20 @@
 # Netlist Congestion Prediction
 ## Capstone-B07-3
 
-### References
+## References
 In this repository, we have referenced the CongestionNet paper (🔗 [Kirby et al.](https://ieeexplore.ieee.org/document/8920342)) as well as the Graph Attention Network (GAT) paper (🔗 [Veličković et al.](https://arxiv.org/abs/1710.10903))
 
-### Setup
+## Setup
 * We need to find a way to install the digIC dataset to the users because it won't let me upload it to this repo.
 * Jupyter notebooks? idk how to setup a README.md file. Will look into this.
 
-### Table of Contents
+## Table of Contents
 
 1. [Installation](#installation)
 2. [Conda Environment](#conda-environment)
 3. [Packages](#packages)
 
-#### Installation
+### Installation
 
 Provide instructions on how to install and set up the project. Include any prerequisites or dependencies.
 
@@ -30,11 +30,11 @@ conda env create -f environment.yml
 conda activate capstone
 ```
 
-#### Conda Environment
+### Conda Environment
 Environment Name: capstone
 Environment File: environment.yml
 
-#### Packages
+### Packages
 * matplot lib 3.8.2
 * networkx 3.2.1
 * numpy 1.26.4
