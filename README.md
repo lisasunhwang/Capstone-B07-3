@@ -11,7 +11,6 @@ In this repository, we have referenced the CongestionNet paper (🔗 [Kirby et a
 ### Table of Contents
 
 1. [Installation](#installation)
-<!-- 2. [Usage](#usage) -->
 2. [Conda Environment](#conda-environment)
 3. [Packages](#packages)
 
