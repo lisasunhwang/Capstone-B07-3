@@ -34,11 +34,11 @@ Environment Name: capstone
 Environment File: environment.yml
 
 ### Packages
-* matplot lib 3.8.2
+* matplotlib 3.8.2
 * networkx 3.2.1
 * numpy 1.26.4
 * pandas 2.2.0
 * scikit-learn 1.4.0
 * scipy 1.12.0
 * seaborn 0.13.2
-*torch 2.2.0
+* torch 2.2.0
