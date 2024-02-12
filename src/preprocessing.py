@@ -122,9 +122,9 @@ def compute_features(instances, cells, xbst, ybst):
 def preprocess_data(pathname, congestion_data):
     # Load all congestion data and assign them to their corresponding instances
     instances, nets, cells = load_data(pathname)
-    instances = assign_demand_congestion_capacity(instances, congestion_data)
     xbst = buildBST(congestion_data['xBoundaryList'])
     ybst = buildBST(congestion_data['yBoundaryList'])
+    instances = assign_demand_congestion_capacity(instances, congestion_data)
     instances = compute_features(instances, cells, xbst, ybst)
 
     return instances
