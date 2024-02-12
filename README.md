@@ -26,7 +26,7 @@ conda activate capstone
 ```
 
 ### Conda Environment
-Environment Name: capstone \n
+Environment Name: capstone <br>
 Environment File: environment.yml
 
 ### Packages
