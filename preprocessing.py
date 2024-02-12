@@ -25,6 +25,7 @@ def buildBST(array,start=0,finish=-1):
         
     return((array[mid],ltl,gtl))
 
+
 def getGRCIndex(x,y,xbst,ybst):
     while (type(xbst)==tuple):
         if x < xbst[0]:
@@ -60,18 +61,22 @@ def load_data(pathname):
 
 
 def load_congestion_data(pathname):
+    # Load congestion data
     congestion_data = np.load(pathname + '/xbar/1/xbar_congestion.npz')
     return congestion_data
 
 
 def assign_demand_congestion_capacity(instances, congestion_data):
+    # Get X and Y BST
     xbst = buildBST(congestion_data['xBoundaryList'])
     ybst = buildBST(congestion_data['yBoundaryList'])
     
+    # Create empty arrays for demand, congestion, and capacity
     demand = np.zeros(shape=[instances.shape[0],])
     congestion = np.zeros(shape=[instances.shape[0],])
     capacity = np.zeros(shape=[instances.shape[0],])
     
+    # Loop through congestion data and assign corresponding demand, capacity, congestion values to instances
     for k in range(instances.shape[0]):
         xloc = instances.iloc[k]['xloc']
         yloc = instances.iloc[k]['yloc']
@@ -88,6 +93,7 @@ def assign_demand_congestion_capacity(instances, congestion_data):
         congestion[k] = d - c
         capacity[k] = c
     
+    # Add arrays to DataFrames
     instances['routing_demand'] = demand
     instances['congestion'] = congestion
     instances['capacity'] = capacity
@@ -96,6 +102,7 @@ def assign_demand_congestion_capacity(instances, congestion_data):
 
 
 def compute_features(instances, cells, xbst, ybst):
+    # Empty list for GRC index and pin density
     grc_pos = []
     pin_count = []
     
@@ -113,6 +120,7 @@ def compute_features(instances, cells, xbst, ybst):
 
 
 def preprocess_data(pathname, congestion_data):
+    # Load all congestion data and assign them to their corresponding instances
     instances, nets, cells = load_data(pathname)
     instances = assign_demand_congestion_capacity(instances, congestion_data)
     xbst = buildBST(congestion_data['xBoundaryList'])
@@ -123,6 +131,7 @@ def preprocess_data(pathname, congestion_data):
 
 
 def save_preprocessed_data(data, output_file):
+    # Save features to new preprocessed CSV
     data.to_csv(output_file, index=False)
 
 
