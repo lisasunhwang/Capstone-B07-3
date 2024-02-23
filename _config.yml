@@ -1,0 +1,13 @@
+
+title: Netlist Congestion Prediction with Graph Attention Network
+tagline: Data Science Capstone
+description: Winter 2024 at UC San Diego
+author: Brian Chen, Lisa Hwang
+baseurl: '/' # the subpath of your site, e.g. /blog
+exclude: ["Gemfile", "Gemfile.lock", "LICENSE"]
+
+# Theme settings
+remote_theme: pages-themes/minimal@v0.2.0
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
