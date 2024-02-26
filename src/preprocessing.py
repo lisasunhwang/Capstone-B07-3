@@ -2,11 +2,6 @@ import gzip
 import json
 import pandas as pd
 import numpy as np
-from scipy.sparse import coo_matrix
-import networkx as nx
-import matplotlib.pyplot as plt
-import seaborn as sns
-import matplotlib.colors as mcolors
 
 
 def buildBST(array,start=0,finish=-1):
@@ -42,27 +37,24 @@ def getGRCIndex(x,y,xbst,ybst):
     return ybst, xbst
 
 
-pathname = 'NCSU-DigIC-GraphData-2023-07-25'
-
-
-def load_data(pathname):
+def load_data():
     # Load instance and net data
-    with gzip.open(pathname + '/xbar/1/xbar.json.gz', 'rb') as f:
+    with gzip.open('../data/1/xbar.json.gz', 'rb') as f:
         design = json.loads(f.read().decode('utf-8'))
 
     instances = pd.DataFrame(design['instances'])
     nets = pd.DataFrame(design['nets'])
     
     # Load cells data
-    with gzip.open(pathname + '/cells.json.gz', 'rb') as f:
+    with gzip.open('../data/cells.json.gz', 'rb') as f:
         cells = json.loads(f.read().decode('utf-8'))
         
     return instances, nets, cells
 
 
-def load_congestion_data(pathname):
+def load_congestion_data():
     # Load congestion data
-    congestion_data = np.load(pathname + '/xbar/1/xbar_congestion.npz')
+    congestion_data = np.load('../data/1/xbar_congestion.npz')
     return congestion_data
 
 
@@ -119,9 +111,9 @@ def compute_features(instances, cells, xbst, ybst):
     return instances
 
 
-def preprocess_data(pathname, congestion_data):
+def preprocess_data(congestion_data):
     # Load all congestion data and assign them to their corresponding instances
-    instances, nets, cells = load_data(pathname)
+    instances, nets, cells = load_data()
     xbst = buildBST(congestion_data['xBoundaryList'])
     ybst = buildBST(congestion_data['yBoundaryList'])
     instances = assign_demand_congestion_capacity(instances, congestion_data)
