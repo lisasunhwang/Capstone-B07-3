@@ -14,18 +14,27 @@ from torch.nn import Linear, Dropout
 from torch_geometric.nn import GCNConv, GATv2Conv, GATConv
 
 def read_data(xbar_number):
+    '''
+    Read in design data given a design number
+    '''
     with gzip.open('NCSU-DigIC-GraphData-2023-07-25/xbar/' + str(xbar_number) + '/xbar.json.gz','rb') as f:
         design = json.loads(f.read().decode('utf-8'))
     instances = pd.DataFrame(design['instances'])
     return instances
 
 def read_cell_data():
+    '''
+    Read in cell data
+    '''
     with gzip.open('NCSU-DigIC-GraphData-2023-07-25/cells.json.gz','rb') as f:
         cells = json.loads(f.read().decode('utf-8'))
     return cells
 
 #functions for accessing GRCs
 def buildBST(array,start=0,finish=-1):
+    '''
+    Create a binary search tree
+    '''
     if finish<0:
         finish = len(array)
     mid = (start + finish) // 2
@@ -42,6 +51,9 @@ def buildBST(array,start=0,finish=-1):
     return((array[mid],ltl,gtl))
 
 def getGRCIndex(x,y,xbst,ybst):
+    '''
+    Use a binary search tree to efficiently find a GRC given an x-location and y-location
+    '''
     while (type(xbst)==tuple):
         if x < xbst[0]:
             xbst=xbst[1]
@@ -57,6 +69,10 @@ def getGRCIndex(x,y,xbst,ybst):
     return ybst, xbst
 
 def extract_congestion(instances, xbar_number):
+    '''
+    Loop through instances, locate their corresponding GRC, and aggregate demand and capacity across 
+    all layers for that GRC to assign the instance those demand and capacity values
+    '''
     congestion_data = np.load('NCSU-DigIC-GraphData-2023-07-25/xbar/' + str(xbar_number) + '/xbar_congestion.npz')
     xbst=buildBST(congestion_data['xBoundaryList'])
     ybst=buildBST(congestion_data['yBoundaryList'])
@@ -84,6 +100,9 @@ def extract_congestion(instances, xbar_number):
     return instances
 
 def extract_features(instances, cells):
+    '''
+    Access cells dictionary to extract features
+    '''
     #extract pin counts, in and out connections, and cell sizes from cells dictionary
     individual_pins = []
     cell_widths = []
@@ -116,6 +135,9 @@ def extract_features(instances, cells):
     return instances
 
 def create_features(instances, xbar_number):
+    '''
+    Engineer features based on GRCs and connectivity
+    '''
     instances['grc_pin_count'] = instances['individual_pins'].groupby(instances['grc_index']).transform('sum')
     instances['grc_cell_count'] = instances['individual_pins'].groupby(instances['grc_index']).transform('count')
     #open connectivity data
@@ -131,21 +153,33 @@ def create_features(instances, xbar_number):
     return instances
 
 def create_feature_matrix(instances):
+    '''
+    Create feature matrix by dropping columns and normalizing features
+    '''
     feature_matrix = instances.drop(columns=['name', 'id', 'cell', 'orient', 'routing_demand', 'routing_capacity', 'grc_index', 'in_connections', 'out_connections', 'height'])
     scaler = MinMaxScaler()
     normalized_feature_matrix = scaler.fit_transform(feature_matrix[['xloc', 'yloc', 'individual_pins', 'width', 'grc_pin_count', 'grc_cell_count', 'connections']])
     return normalized_feature_matrix
 
 def extract_labels(instances):
+    '''
+    Take demand column as the labels
+    '''
     labels = instances['routing_demand']
     return labels
 
 def to_tensors(feature_matrix, labels):
+    '''
+    Create tensors to be passed into model
+    '''
     X = torch.tensor(feature_matrix, dtype=torch.float)
     y = torch.tensor(labels, dtype=torch.float)
     return X, y
 
 def create_edge_index(xbar_number):
+    '''
+    Create edge index to be passed into model based on connectivity data
+    '''
     conn=np.load('NCSU-DigIC-GraphData-2023-07-25/xbar/' + str(xbar_number) + '/xbar_connectivity.npz')
 
     A = coo_matrix((conn['data'], (conn['row'], conn['col'])), shape=conn['shape'])
@@ -157,6 +191,9 @@ def create_edge_index(xbar_number):
     return edge_index
 
 def prepare_data(xbar_number):
+    '''
+    Outputs a dataframe with all columns necessary for processes
+    '''
     instances = read_data(xbar_number)
     #nets = pd.DataFrame(design['nets'])
     cells = read_cell_data()
