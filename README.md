@@ -23,6 +23,9 @@ cd Capstone-B07-3
 # Create and activate Conda environment
 conda env create -f environment.yml
 conda activate capstone
+
+#preprocess data and train model
+python run.py
 ```
 
 ### Conda Environment
