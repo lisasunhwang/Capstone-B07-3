@@ -6,18 +6,20 @@ import numpy as np
 from scipy.sparse import coo_matrix
 import torch
 
+from sklearn.preprocessing import MinMaxScaler
+import torch.nn as nn
+
 import torch.nn.functional as F
 from torch.nn import Linear, Dropout
-from torch_geometric.nn import GCNConv, GATv2Conv
+from torch_geometric.nn import GCNConv, GATv2Conv, GATConv
 
 class GAT(torch.nn.Module):
     def __init__(self, dim_in, dim_h, dim_out, heads=8):
         super().__init__()
-        self.gat1 = GATv2Conv(dim_in, dim_h, heads=heads)
-        #arbitrarily set output of second layer to have the same number of dimensions as dim_in
-        self.gat2 = GATv2Conv(dim_h*heads, dim_out, heads=1)
-        #self.out = Linear(dim_in, dim_out)
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=0.005, weight_decay=5e-4)
+        self.gat1 = GATConv(dim_in, dim_h, heads=heads)
+        self.gat2 = GATConv(dim_h*heads, dim_h, heads=heads)
+        self.linear = nn.Linear(dim_h*heads, dim_out)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=0.0175, weight_decay=5e-4)
 
     def forward(self, x, edge_index):
         #h = F.dropout(x, p=0.6, training=self.training)
@@ -25,42 +27,42 @@ class GAT(torch.nn.Module):
         h = F.elu(h)
         #h = F.dropout(h, p=0.6, training=self.training)
         h = self.gat2(h, edge_index)
-        #h = F.elu(h)
-        #h = self.out(h)
-        return h
+        h = F.elu(h)
+        h = self.linear(h).squeeze(1)
 
-#def accuracy(pred_y, y):
-#    return ((pred_y == y).sum() / len(y)).item()
+        return h
 
 def train(model, x, y, edge_index):
     criterion = torch.nn.MSELoss()
     optimizer = model.optimizer
-    epochs = 1000
+    epochs = 500
 
     model.train()
     for epoch in range(epochs+1):
-        # Training
+        # training
         optimizer.zero_grad()
         out = model(x, edge_index)
         loss = criterion(out, y)
-        #acc = accuracy(out[train_mask].argmax(dim=1), y[train_mask])
         loss.backward()
         optimizer.step()
 
-        # Validation
-        #val_loss = criterion(out[val_mask], y[val_mask])
-        #val_acc = accuracy(out[val_mask].argmax(dim=1), y[val_mask])
 
-        # Print metrics every 10 epochs
+        # print metrics every 10 epochs
         if(epoch % 100 == 0):
-            print(f'Epoch {epoch:>3} | Train Loss: {loss:.3f} | Train Acc: '
+            print(f'Epoch {epoch:>3} | Train Loss: {loss:.3f} '
                   )
+        if(epoch == epochs):
+            print('---Training Complete---')
+            #print parameters
+            #for name, param in model.named_parameters():
+            #    print(name, param.grad.norm())
           
     return model, out
 
-def test(model, data):
-    """Evaluate the model on test set and print the accuracy score."""
+def test(model, x, y, edge_index):
     model.eval()
-    _, out = model(data.x, data.edge_index)
-    acc = accuracy(out.argmax(dim=1)[data.test_mask], data.y[data.test_mask])
-    return acc
+    criterion = torch.nn.MSELoss()
+    with torch.no_grad():
+        out = model(x, edge_index)
+        mse = criterion(out, y)
+    return out, mse
